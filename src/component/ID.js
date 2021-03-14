@@ -23,6 +23,13 @@ function ID({ user }) {
 
     const [ fileMode, setFileMode ] = useState(false);
 
+    const [ facebookName, setFacebookName ] = useState();
+    const [ facebookLink, setFacebookLink ] = useState();
+    const [ twitterName, setTwitterName ] = useState();
+    const [ twitterLink, setTwitterLink ] = useState();
+    const [ githubName, setGithubName ] = useState();
+    const [ githubLink, setGithubLink ] = useState();
+
     const handlePayloadChange = (e) => { setPayload(e.target.value); };
     const handlePasswordChange = (e) => { setPassword(e.target.value); };
     const handleFileChange = (e) => { setFile(e.target.files[0]); };
@@ -108,13 +115,28 @@ function ID({ user }) {
         .then(res => res.json())
         .then(
             (res) => {
-                if (res.code)
-                    window.location.href = '/';
+                switch (res.code) {
+                    case 0:
+                        break;
+                    case 3:
+                        window.location.href = '/login';
+                        break;
+                    default:
+                        window.location.href = '/';
+                        break;
+                }
 
                 setUsername(res.username);
                 setName(res.name);
                 setBlurb(res.blurb);
                 setKey(res.key_decrypt);
+
+                setFacebookName(res.facebook_name);
+                setFacebookLink(res.facebook_link);
+                setTwitterName(res.twitter_name);
+                setTwitterLink(res.twitter_link);
+                setGithubName(res.github_name);
+                setGithubLink(res.github_link);
             },
             (err) => {
                 window.location.href = '/';
@@ -122,11 +144,9 @@ function ID({ user }) {
         );
     }, []);
 
-    //<i className='soft' style={{ wordBreak: 'break-all' }}>{ key }</i>
-
     return (
         <>
-            <div style={{ opacity: name ? 1 : 0 }} className='box'>
+            <div style={{ opacity: name ? 1 : 0, display: name ? 'flex' : 'none' }} className='box'>
                 <div className='qr'>
                     <QRCode
                         size={ 225 }
@@ -135,30 +155,43 @@ function ID({ user }) {
                         logoImage='/logo.png' logoWidth='75' logoOpacity='0.8' />
                         </div>
                 <div>
-                    <h1>{ name }</h1>
+                    <h1 style={{ fontWeight: 400 }}>{ name }</h1>
+                    <i className='soft'>@{ username }</i>
                     <p>{ blurb }</p>
                     <div>
                         <div style={{ display: 'inline-block' }}>
-                            <Social
-                                text='Jihoon Yang (@lanpai)'
-                                color='#1DA1F2' type='twitter' />
-                            <Social
-                                text='Jihoon Yang (@lanpai)'
-                                color='#0366d6' type='github' />
-                            <Social
-                                text='Jihoon Yang'
-                                color='#4267B2' type='facebook' />
+                            { twitterName &&
+                                <Social
+                                    text={ twitterName }
+                                    link={ twitterLink }
+                                    color='#1DA1F2' type='twitter' /> }
+                            { githubName &&
+                                <Social
+                                    text={ githubName }
+                                    link={ githubLink }
+                                    color='#0366D6' type='github' /> }
+                            { facebookName &&
+                                <Social
+                                    text={ facebookName }
+                                    link={ facebookLink }
+                                    color='#4267B2' type='facebook' /> }
                         </div>
                     </div>
                     { me &&
-                        <Link to='/edit'>
-                            <small className='soft'>Edit your profile</small>
-                        </Link>
+                        <>
+                            <Link to='/edit'>
+                                <small className='soft'>Edit your profile</small>
+                            </Link>
+                            <br />
+                            <a href='/logout'>
+                                <small className='soft'>Logout</small>
+                            </a>
+                        </>
                     }
                 </div>
             </div>
             <div style={{
-                display: me ? 'flex' : 'none',
+                display: me && name ? 'flex' : 'none',
                 opacity: name ? 1 : 0,
                 backgroundColor: 'transparent'
             }} className='box'>
@@ -171,7 +204,7 @@ function ID({ user }) {
                         </small>
                     </Link>
                     { fileMode
-                        ? <div style={{ marginTop: 5 }}>
+                        ? <div style={{ marginTop: 8 }}>
                             <label style={{ marginRight: 4 }} for='file'>
                                 Browse
                             </label>

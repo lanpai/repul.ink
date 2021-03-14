@@ -78,7 +78,7 @@ function Register() {
                     <input
                         type='password' placeholder='Password'
                         value={ password } onChange={ handlePasswordChange } />
-                    <button onClick={ handleRegister }>Register</button>
+                    <button style={{ marginTop: 10 }} onClick={ handleRegister }>Register</button>
                     <Link to='/login'>
                         <small className='soft'>Already have an account?</small>
                     </Link>

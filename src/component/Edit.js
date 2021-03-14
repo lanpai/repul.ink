@@ -12,6 +12,13 @@ function Edit() {
     const [ blurb, setBlurb ] = useState();
     const [ key, setKey ] = useState();
 
+    const [ facebookName, setFacebookName ] = useState();
+    const [ facebookLink, setFacebookLink ] = useState();
+    const [ twitterName, setTwitterName ] = useState();
+    const [ twitterLink, setTwitterLink ] = useState();
+    const [ githubName, setGithubName ] = useState();
+    const [ githubLink, setGithubLink ] = useState();
+
     const handleNameChange = (e) => { setName(e.target.value); };
     const handleBlurbChange = (e) => { setBlurb(e.target.value); };
 
@@ -28,6 +35,13 @@ function Edit() {
                 setName(res.name);
                 setBlurb(res.blurb);
                 setKey(res.key_decrypt);
+
+                setFacebookName(res.facebook_name);
+                setFacebookLink(res.facebook_link);
+                setTwitterName(res.twitter_name);
+                setTwitterLink(res.twitter_link);
+                setGithubName(res.github_name);
+                setGithubLink(res.github_link);
             },
             (err) => {
                 window.location.href = '/';
@@ -50,12 +64,12 @@ function Edit() {
     }
 
     return (
-        <div style={{ opacity: loaded ? 1 : 0 }} className='box'>
+        <div style={{ opacity: loaded ? 1 : 0, display: loaded ? 'flex' : 'none' }} className='box'>
             <div>
                 <input
                     style={{
                         color: 'var(--highlight)',
-                        fontWeight: 700, fontSize: 32,
+                        fontWeight: 400, fontSize: 32,
                         marginTop: 0
                     }}
                     type='text' placeholder='Display Name'
@@ -70,9 +84,33 @@ function Edit() {
                     value={ blurb } onChange={ handleBlurbChange } />
                 <div>
                     <div style={{ display: 'inline-block' }}>
-                        <Social text='Connect Twitter' color='#1DA1F2' type='twitter' />
-                        <Social text='Connect GitHub' color='#0366d6' type='github' />
-                        <Social text='Connect Facebook' color='#4267B2' type='facebook' />
+                        { twitterName
+                            ? <Social
+                                text={ twitterName }
+                                link={ twitterLink }
+                                color='#1DA1F2' type='twitter' />
+                            : <Social
+                                text='Connect Twitter'
+                                link='/auth/twitter'
+                                color='#1DA1F2' type='twitter' /> }
+                        { githubName
+                            ? <Social
+                                text={ githubName }
+                                link={ githubLink }
+                                color='#0366D6' type='github' />
+                            : <Social
+                                text='Connect GitHub'
+                                link='/auth/github'
+                                color='#0366D6' type='github' /> }
+                        { facebookName
+                            ? <Social
+                                text={ facebookName }
+                                link={ facebookLink }
+                                color='#4267B2' type='facebook' />
+                            : <Social
+                                text='Connect Facebook'
+                                link='/auth/facebook'
+                                color='#4267B2' type='facebook' /> }
                     </div>
                 </div>
                 <button onClick={ handleApply }>Apply</button>

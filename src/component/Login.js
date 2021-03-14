@@ -79,7 +79,7 @@ function Login() {
                     <input
                         type='password' placeholder='Password'
                         value={ password } onChange={ handlePasswordChange } />
-                    <button onClick={ handleLogin }>Login</button>
+                    <button style={{ marginTop: 10 }}  onClick={ handleLogin }>Login</button>
                     <Link to='/register'>
                         <small className='soft'>Don't have an account?</small>
                     </Link>

@@ -1,8 +1,6 @@
-function Social(props) {
-    const { text, color, type } = props;
-
+function Social({ text, color, type, link }) {
     return (
-        <a href='/'>
+        <a href={ link }>
             <div className='social' style={{ backgroundColor: color }}>
                 <span>{ text }</span>
                 <i className={ `fab fa-${type}` }></i>
