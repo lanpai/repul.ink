@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom';
 
 import ID from './component/ID';
+import Signature from './component/Signature';
 import Register from './component/Register';
 import Login from './component/Login';
 import Edit from './component/Edit';
@@ -32,6 +33,9 @@ function App() {
                     </Route>
                     <Route path='/id/:username'>
                         <ID />
+                    </Route>
+                    <Route path='/sig/:uuid'>
+                        <Signature />
                     </Route>
                     <Route path='/edit'>
                         <Edit />

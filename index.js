@@ -5,7 +5,11 @@ require('dotenv').config();
 const axios = require('axios');
 const forge = require('node-forge');
 
-// Initialize express
+// Initializing
+const short = require('short-uuid');
+const UUID = short(short.constants.flickrBase58);
+
+// Initializing express
 const express = require('express');
 const PORT = process.env.PORT || 6754;
 const app = express();
@@ -160,10 +164,36 @@ app.get('/api/id/:username', (req, res) => {
 
             res.json({
                 code: 0,
+                message: 'Success',
                 username: rows[0].username,
                 name: rows[0].name,
                 blurb: rows[0].blurb,
                 key_decrypt: rows[0].key_decrypt.toString()
+            });
+        }
+    );
+});
+
+app.get('/api/sig/:uuid', (req, res) => {
+    const uuid = req.params.uuid;
+
+    sql.query(
+        'SELECT * FROM `signatures` WHERE `uuid` = ?',
+        uuid, (err, rows, fields) => {
+            if (err) throw err;
+
+            // Check if user is found
+            if (rows.length == 0)
+                return res.json({ code: 1, message: 'Signature not found!' });
+
+            res.json({
+                code: 0,
+                message: 'Success',
+                uuid: rows[0].uuid,
+                username: rows[0].username,
+                signature: rows[0].signature.toString(),
+                hash: rows[0].hash,
+                text: rows[0].text
             });
         }
     );
@@ -219,6 +249,77 @@ app.post('/api/prepareLogin', (req, res) => {
                     });
                 }
             );
+        }
+    );
+});
+
+app.post('/api/prepareSign', isAuth, (req, res) => {
+    sql.query(
+        'SELECT EXISTS(SELECT * FROM `users` WHERE `username` = ?)',
+        req.user.username, (err, rows, fields) => {
+            if (err) throw err;
+            if (!Object.values(rows[0])[0])
+                return res.json({ code: 4, message: 'Invalid username!' });
+
+            sql.query(
+                'SELECT `key_encrypt` FROM `users` WHERE `username` = ?',
+                req.user.username,
+                (err, rows, fields) => {
+                    if (err) throw err;
+                    return res.json({
+                        code: 0,
+                        message: 'Success',
+                        key_encryption: rows[0].key_encrypt.toString()
+                    });
+                }
+            );
+        }
+    );
+});
+
+app.post('/api/sign', isAuth, (req, res) => {
+    let { hash, payload, signature } = req.body;
+
+    sql.query(
+        'SELECT `id`,`key_decrypt` FROM `users` WHERE `username` = ?',
+        req.user.username, (err, rows, fields) => {
+            if (err) throw err;
+
+            // Check if user is found
+            if (rows.length == 0)
+                return done(null, false);
+
+            const md = forge.md.sha1.create().update(payload, 'utf8');
+
+            const key_decrypt = forge.pki.publicKeyFromPem(
+                rows[0].key_decrypt);
+
+            hash = hash || md.digest().toHex();
+            const verified = key_decrypt.verify(
+                forge.util.hexToBytes(hash), signature);
+
+            if (verified) {
+                const uuid = UUID.new();
+                sql.query(
+                    'INSERT INTO `signatures` (`uuid`,`username`,`signature`,`hash`,`text`) VALUES (?,?,?,?,?)',
+                    [ uuid, req.user.username, signature, hash, payload ],
+                    (err, rows, fields) => {
+                        if (err) throw err;
+
+                        return res.json({
+                            code: 0,
+                            message: 'Success',
+                            uuid
+                        });
+                    }
+                );
+            }
+            else {
+                return res.json({
+                    code: 1,
+                    message: 'Invalid signature!'
+                });
+            }
         }
     );
 });

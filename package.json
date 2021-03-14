@@ -17,11 +17,13 @@
     "passport": "^0.4.1",
     "passport-facebook": "^3.0.0",
     "passport-local": "^1.0.0",
+    "passport-twitter": "^1.0.4",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-qrcode-logo": "^2.2.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "short-uuid": "^4.1.0",
     "web-vitals": "^1.1.0"
   },
   "scripts": {
